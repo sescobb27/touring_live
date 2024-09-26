@@ -213,8 +213,10 @@ const ImageUploadAndCamera: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {images.map((image, index) => (
-          <div key={index} className="relative">
-            <img src={image.preview} alt={`Preview ${index}`} className="w-full h-48 object-cover rounded" />
+          <div key={index} className="relative p-2 bg-white border rounded-lg shadow-md">
+            <div className="h-48 w-full overflow-hidden flex justify-center items-center bg-gray-200">
+              <img src={image.preview} alt={`Preview ${index}`} className="h-full object-contain" />
+            </div>
             <button
               onClick={() => removeImage(index)}
               className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full"
@@ -222,10 +224,8 @@ const ImageUploadAndCamera: React.FC = () => {
               X
             </button>
             {image.description && (
-              <div className="mt-2 text-sm text-gray-700 bg-gray-100 p-2 rounded">
-                <strong>Description:</strong> <div className="container mx-auto px-4 py-8">
-                  <MarkdownRenderer content={image.description} />
-                </div>
+              <div className="mt-2 max-h-24 overflow-y-auto p-2 text-sm text-gray-700 bg-gray-100 rounded">
+                <strong>Description:</strong> <MarkdownRenderer content={image.description} />
               </div>
             )}
           </div>
