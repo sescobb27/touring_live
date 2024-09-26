@@ -11,6 +11,7 @@ const ImageUploadAndCamera: React.FC = () => {
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [imageError, setImageError] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -134,6 +135,7 @@ const ImageUploadAndCamera: React.FC = () => {
 
     try {
       setUploadError(null); // Reset any previous error
+      setIsUploading(true); // Set loading state
       const response = await fetch('http://localhost:4000/api/upload', {
         method: 'POST',
         body: formData,
@@ -147,6 +149,8 @@ const ImageUploadAndCamera: React.FC = () => {
     } catch (error) {
       console.error('Error uploading images:', error);
       setUploadError('Failed to upload images. Please try again.');
+    } finally {
+      setIsUploading(false); // Reset loading state
     }
   };
 
@@ -213,8 +217,19 @@ const ImageUploadAndCamera: React.FC = () => {
       {uploadError && <p className="text-red-500 mt-4">{uploadError}</p>}
 
       {images.length > 0 && (
-        <button onClick={handleSubmit} className="mt-4 px-4 py-2 bg-green-500 text-white rounded">
-          Upload Images
+        <button
+          onClick={handleSubmit}
+          disabled={isUploading}
+          className={`mt-4 px-4 py-2 text-white rounded ${isUploading ? 'bg-gray-500' : 'bg-green-500'}`}
+        >
+          {isUploading ? (
+            <span className="flex items-center">
+              <svg className="animate-spin h-5 w-5 mr-2" /* SVG spinner code here */></svg>
+              Uploading...
+            </span>
+          ) : (
+            'Upload Images'
+          )}
         </button>
       )}
     </div>
