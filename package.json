@@ -17,7 +17,9 @@
     "isbot": "^4.1.0",
     "lucide-react": "^0.446.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-markdown": "^9.0.1",
+    "remark-gfm": "^4.0.0"
   },
   "devDependencies": {
     "@remix-run/dev": "^2.12.1",

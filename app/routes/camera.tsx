@@ -1,8 +1,10 @@
 import React, { useState, useRef, ChangeEvent } from 'react';
+import MarkdownRenderer from '~/components/markdown_renderer';
 
 interface ImageFile {
   file: File;
   preview: string;
+  description?: string;
 }
 
 const ImageUploadAndCamera: React.FC = () => {
@@ -129,7 +131,7 @@ const ImageUploadAndCamera: React.FC = () => {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     const formData = new FormData();
-    images.forEach((image, index) => {
+    images.forEach(image => {
       formData.append(`images[]`, image.file);
     });
 
@@ -144,8 +146,17 @@ const ImageUploadAndCamera: React.FC = () => {
         throw new Error(`Server error: ${response.statusText}`);
       }
       const data = await response.json();
+
+      // Match the response with uploaded images
+      const updatedImages = images.map(image => {
+        const matched = data.results.find((item: { filename: string }) => item.filename === image.file.name);
+        return matched
+          ? { ...image, description: matched.description }
+          : image;
+      });
+
+      setImages(updatedImages); // Update state with descriptions
       console.log('Upload successful:', data);
-      // Handle the response from the server here
     } catch (error) {
       console.error('Error uploading images:', error);
       setUploadError('Failed to upload images. Please try again.');
@@ -210,6 +221,13 @@ const ImageUploadAndCamera: React.FC = () => {
             >
               X
             </button>
+            {image.description && (
+              <div className="mt-2 text-sm text-gray-700 bg-gray-100 p-2 rounded">
+                <strong>Description:</strong> <div className="container mx-auto px-4 py-8">
+                  <MarkdownRenderer content={image.description} />
+                </div>
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -222,14 +240,7 @@ const ImageUploadAndCamera: React.FC = () => {
           disabled={isUploading}
           className={`mt-4 px-4 py-2 text-white rounded ${isUploading ? 'bg-gray-500' : 'bg-green-500'}`}
         >
-          {isUploading ? (
-            <span className="flex items-center">
-              <svg className="animate-spin h-5 w-5 mr-2" /* SVG spinner code here */></svg>
-              Uploading...
-            </span>
-          ) : (
-            'Upload Images'
-          )}
+          {isUploading ? 'Uploading...' : 'Upload Images'}
         </button>
       )}
     </div>
