@@ -1,4 +1,5 @@
 import type { MetaFunction } from "@remix-run/node";
+import ImageGalleryUploader from "./uploader"
 
 export const meta: MetaFunction = () => {
   return [
@@ -49,6 +50,7 @@ export default function Index() {
           </ul>
         </nav>
       </div>
+      <ImageGalleryUploader />
     </div>
   );
 }
