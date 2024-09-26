@@ -134,7 +134,7 @@ const ImageUploadAndCamera: React.FC = () => {
 
     try {
       setUploadError(null); // Reset any previous error
-      const response = await fetch('/api/upload', {
+      const response = await fetch('http://localhost:4000/api/upload', {
         method: 'POST',
         body: formData,
       });
