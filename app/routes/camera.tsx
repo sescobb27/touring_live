@@ -1,10 +1,12 @@
 import React, { useState, useRef, ChangeEvent } from 'react';
 import MarkdownRenderer from '~/components/markdown_renderer';
+import StreamingAudioPlayer from '~/components/audio_player';
 
 interface ImageFile {
   file: File;
   preview: string;
   description?: string;
+  audio?: ReadableStream<Uint8Array> | null | undefined;
 }
 
 const ImageUploadAndCamera: React.FC = () => {
@@ -139,24 +141,20 @@ const ImageUploadAndCamera: React.FC = () => {
       setUploadError(null); // Reset any previous error
       setIsUploading(true); // Set loading state
       const response = await fetch('http://localhost:4000/api/upload', {
+        headers: { "accept": "audio/mpeg" },
         method: 'POST',
         body: formData,
       });
+
       if (!response.ok) {
         throw new Error(`Server error: ${response.statusText}`);
       }
-      const data = await response.json();
 
-      // Match the response with uploaded images
       const updatedImages = images.map(image => {
-        const matched = data.results.find((item: { filename: string }) => item.filename === image.file.name);
-        return matched
-          ? { ...image, description: matched.description }
-          : image;
+        return { ...image, audio: response.body };
       });
 
       setImages(updatedImages); // Update state with descriptions
-      console.log('Upload successful:', data);
     } catch (error) {
       console.error('Error uploading images:', error);
       setUploadError('Failed to upload images. Please try again.');
@@ -226,6 +224,11 @@ const ImageUploadAndCamera: React.FC = () => {
             {image.description && (
               <div className="mt-2 max-h-24 overflow-y-auto p-2 text-sm text-gray-700 bg-gray-100 rounded">
                 <strong>Description:</strong> <MarkdownRenderer content={image.description} />
+              </div>
+            )}
+            {image.audio && (
+              <div className="mt-2 max-h-24 overflow-y-auto p-2 text-sm text-gray-700 bg-gray-100 rounded">
+                <StreamingAudioPlayer stream={image.audio} />
               </div>
             )}
           </div>
