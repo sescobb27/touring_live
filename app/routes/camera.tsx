@@ -6,8 +6,11 @@ interface ImageFile {
   file: File;
   preview: string;
   description?: string;
-  audio?: ReadableStream<Uint8Array> | null | undefined;
+  src?: string | null;
 }
+
+// const host = 'http://localhost:4000'
+const host = 'https://touring-live-api.fly.dev'
 
 const ImageUploadAndCamera: React.FC = () => {
   const [images, setImages] = useState<ImageFile[]>([]);
@@ -140,8 +143,8 @@ const ImageUploadAndCamera: React.FC = () => {
     try {
       setUploadError(null); // Reset any previous error
       setIsUploading(true); // Set loading state
-      const response = await fetch('http://localhost:4000/api/upload', {
-        headers: { "accept": "audio/mpeg" },
+      const response = await fetch(`${host}/api/upload`, {
+        headers: { "accept": "application/json" },
         method: 'POST',
         body: formData,
       });
@@ -150,8 +153,10 @@ const ImageUploadAndCamera: React.FC = () => {
         throw new Error(`Server error: ${response.statusText}`);
       }
 
+      const data = await response.json();
+
       const updatedImages = images.map(image => {
-        return { ...image, audio: response.body };
+        return { ...image, src: data.src, description: data.description };
       });
 
       setImages(updatedImages); // Update state with descriptions
@@ -175,7 +180,6 @@ const ImageUploadAndCamera: React.FC = () => {
           type="file"
           className="hidden"
           onChange={handleFileChange}
-          multiple
           accept="image/*"
         />
         <button onClick={openCamera} className="px-4 py-2 bg-green-500 text-white rounded">
@@ -226,9 +230,9 @@ const ImageUploadAndCamera: React.FC = () => {
                 <strong>Description:</strong> <MarkdownRenderer content={image.description} />
               </div>
             )}
-            {image.audio && (
+            {image.src && (
               <div className="mt-2 max-h-24 overflow-y-auto p-2 text-sm text-gray-700 bg-gray-100 rounded">
-                <StreamingAudioPlayer stream={image.audio} />
+                <StreamingAudioPlayer src={image.src} />
               </div>
             )}
           </div>

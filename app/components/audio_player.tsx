@@ -1,10 +1,10 @@
 import React, { useEffect, useRef } from 'react';
 
 interface AudioPlayerProps {
-  stream: ReadableStream<Uint8Array>;
+  src: string;
 }
 
-const AudioPlayer: React.FC<AudioPlayerProps> = ({ stream }) => {
+const AudioPlayer: React.FC<AudioPlayerProps> = ({ src }) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
@@ -24,7 +24,8 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ stream }) => {
     mediaSource.addEventListener('sourceopen', async () => {
       try {
         sourceBuffer = mediaSource.addSourceBuffer('audio/mpeg');
-        const reader = stream.getReader();
+        const response = await fetch(src);
+        const reader = response.body.getReader();
 
         const readChunk = async () => {
           const { done, value } = await reader.read();
@@ -55,7 +56,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ stream }) => {
       }
       audio.src = '';
     };
-  }, [stream]);
+  }, [src]);
 
   return (
     <div>
