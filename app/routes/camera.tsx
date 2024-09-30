@@ -1,12 +1,15 @@
 import React, { useState, useRef, ChangeEvent } from 'react';
 import MarkdownRenderer from '~/components/markdown_renderer';
-import StreamingAudioPlayer from '~/components/audio_player';
+// import StreamingAudioPlayer from '~/components/audio_player';
+import { AudioPlayer } from 'react-audio-play';
+
 
 interface ImageFile {
   file: File;
   preview: string;
   description?: string;
   src?: string | null;
+  context?: string | null;
 }
 
 // const host = 'http://localhost:4000'
@@ -19,6 +22,8 @@ const ImageUploadAndCamera: React.FC = () => {
   const [imageError, setImageError] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [activeContextIndex, setActiveContextIndex] = useState<number | null>(null);
+  const [contextInput, setContextInput] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -133,12 +138,25 @@ const ImageUploadAndCamera: React.FC = () => {
     setIsCameraOpen(false);
   };
 
+  const handleContextButtonClick = (index: number) => {
+    setActiveContextIndex(index);
+    setContextInput(images[index].context || '');
+  };
+
+  const handleContextInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setContextInput(e.target.value);
+  };
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     const formData = new FormData();
     images.forEach(image => {
       formData.append(`images[]`, image.file);
     });
+
+    if (contextInput) {
+      formData.set("context", contextInput);
+    }
 
     try {
       setUploadError(null); // Reset any previous error
@@ -232,7 +250,22 @@ const ImageUploadAndCamera: React.FC = () => {
             )}
             {image.src && (
               <div className="mt-2 max-h-24 overflow-y-auto p-2 text-sm text-gray-700 bg-gray-100 rounded">
-                <StreamingAudioPlayer src={image.src} />
+                <AudioPlayer src={image.src} />
+                <button onClick={() => handleContextButtonClick(index)} className="ml-2 px-2 py-1 bg-blue-500 text-white rounded" >
+                  Did we missed the place?
+                </button>
+              </div>
+            )}
+
+            {activeContextIndex === index && (
+              <div className="mt-2 flex">
+                <input
+                  type="text"
+                  value={contextInput}
+                  onChange={handleContextInputChange}
+                  placeholder="Enter name"
+                  className="flex-grow px-2 py-1 border rounded"
+                />
               </div>
             )}
           </div>
