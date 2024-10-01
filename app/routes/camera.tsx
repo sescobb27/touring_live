@@ -186,6 +186,10 @@ const ImageUploadAndCamera: React.FC = () => {
           setUploadError('Unknown place, monument, object, or art. Please try again.');
           return;
         }
+        if (response.status == 429) {
+          setUploadError('Sorry you can only upload 3 images per hour');
+          return;
+        }
         throw new Error(`Server error: ${response.statusText}`);
       }
       
