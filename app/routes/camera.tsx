@@ -426,7 +426,7 @@ const ImageUploadAndCamera: React.FC = () => {
           className={`mt-4 text-lg px-4 py-2 text-white rounded ${isUploading ? "bg-gray-500" : "bg-green-500"
             }`}
         >
-          {isUploading ? "Uploading..." : contextInput ? "Upload Again" : "Upload Image"}
+          {isUploading ? "Uploading..." : contextInput ? "Upload Again" : "Start Exploring"}
         </button>
       )}
     </div>
