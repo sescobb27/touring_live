@@ -6,6 +6,7 @@ import {
   ScrollRestoration,
 } from "@remix-run/react";
 import type { LinksFunction } from "@remix-run/node";
+import '@smastrom/react-rating/style.css'
 
 import "./tailwind.css";
 

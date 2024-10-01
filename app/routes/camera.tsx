@@ -2,18 +2,19 @@ import React, { useState, useRef, ChangeEvent } from "react";
 import MarkdownRenderer from "~/components/markdown_renderer";
 // import StreamingAudioPlayer from '~/components/audio_player';
 import { AudioPlayer } from "react-audio-play";
-
+import { Rating } from '@smastrom/react-rating';
 interface ImageFile {
   file: File;
   preview: string;
   description?: string;
-  name?: string;
+  name?: string | null;
+  slug?: string | null;
   src?: string | null;
   context?: string | null;
 }
 
-const host = 'http://localhost:4000'
-// const host = "https://touring-live-api.fly.dev";
+// const host = 'http://localhost:4000'
+const host = "https://touring-live-api.fly.dev";
 
 const ImageUploadAndCamera: React.FC = () => {
   const [images, setImages] = useState<ImageFile[]>([]);
@@ -31,6 +32,7 @@ const ImageUploadAndCamera: React.FC = () => {
   const [contextInput, setContextInput] = useState<string>("");
   const [feedbackInput, setFeedbackInput] = useState<string>("");
   const [feedbackError, setFeedbackError] = useState<string | null>(null);
+  const [feedbackScore, setFeedbackScore] = useState<number>(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -95,8 +97,7 @@ const ImageUploadAndCamera: React.FC = () => {
   const addImagesToState = (files: File[]) => {
     const newImages: ImageFile[] = files.map(file => ({
       file,
-      preview: URL.createObjectURL(file),
-      src: "fsdfas", description: "fasddfs", name: "pepe"
+      preview: URL.createObjectURL(file)
     }));
     setImages(_prevImages => [...newImages]);
   };
@@ -181,11 +182,13 @@ const ImageUploadAndCamera: React.FC = () => {
       return;
     }
     setFeedbackError(null)
-    const payload = { elementName: images[0].name, feedback: feedbackInput }
+    // only set score if its non 0
+    const score = feedbackScore == 0 ? null : feedbackScore;
+    const payload = { slug: images[0].slug, feedback: feedbackInput, score }
 
     try {
       const response = await fetch(`${host}/api/feedback`, {
-        headers: { accept: "application/json" },
+        headers: { accept: "application/json", 'content-type': "application/json" },
         method: "POST",
         body: JSON.stringify(payload),
       });
@@ -235,7 +238,7 @@ const ImageUploadAndCamera: React.FC = () => {
       const data = await response.json();
 
       const updatedImages = images.map((image) => {
-        return { ...image, src: data.src, description: data.description, name: data.name };
+        return { ...image, src: data.src, description: data.description, name: data.name, slug: data.slug };
       });
 
       setImages(updatedImages); // Update state with descriptions
@@ -370,22 +373,28 @@ const ImageUploadAndCamera: React.FC = () => {
             )}
 
             {isUseful && (
-              <div className="mt-2 flex">
-                <input
-                  type="textarea"
-                  value={feedbackInput}
-                  onChange={handleFeedbackInputChange}
-                  placeholder="How would you rate our app?, was it helpful?"
-                  className="flex-grow px-2 py-1 border text-gray-700 bg-gray-100 rounded"
-                />
-                <button
-                  onClick={handleFeedbackSubmit}
-                  className="mt-4 text-lg px-4 py-2 text-white rounded bg-green-500"
-                >
-                  Submit
-                </button>
+              <>
+                <div className="mt-2 flex">
+                  <input
+                    type="textarea"
+                    value={feedbackInput}
+                    onChange={handleFeedbackInputChange}
+                    placeholder="How would you rate our app?, was it helpful?"
+                    className="flex-grow px-2 py-1 border text-gray-700 bg-gray-100 rounded"
+                  />
+                  <Rating value={feedbackScore} onChange={setFeedbackScore} />
+                </div>
+
+                <div className="mt-2 flex">
+                  <button
+                    onClick={handleFeedbackSubmit}
+                    className="mt-4 text-lg px-4 py-2 text-white rounded bg-green-500"
+                  >
+                    Submit
+                  </button>
+                </div>
                 {feedbackError && <p className="text-red-500 mt-4">{feedbackError}</p>}
-              </div>
+              </>
             )}
 
             {activeContextIndex === index && (
