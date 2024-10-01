@@ -161,7 +161,7 @@ const ImageUploadAndCamera: React.FC = () => {
 
   const handleContextButtonClick = (index: number) => {
     setActiveContextIndex(index);
-    setContextInput(images[index].context || "");
+    setContextInput("");
   };
 
   const handleContextInputChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -201,6 +201,7 @@ const ImageUploadAndCamera: React.FC = () => {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setIsUseful(null);
+    setActiveContextIndex(null);
     const formData = new FormData();
     images.forEach((image) => {
       formData.append(`images[]`, image.file);
@@ -388,15 +389,20 @@ const ImageUploadAndCamera: React.FC = () => {
             )}
 
             {activeContextIndex === index && (
-              <div className="mt-2 flex">
-                <input
-                  type="text"
-                  value={contextInput}
-                  onChange={handleContextInputChange}
-                  placeholder="Enter name"
-                  className="flex-grow px-2 py-1 border text-gray-700 bg-gray-100 rounded"
-                />
-              </div>
+              <>
+                <div className="mt-2 flex">
+                  Enter more info about the image e.g its'name
+                </div>
+                <div className="mt-2 flex">
+                  <input
+                    type="text"
+                    value={contextInput}
+                    onChange={handleContextInputChange}
+                    placeholder="Enter name"
+                    className="flex-grow px-2 py-1 border text-gray-700 bg-gray-100 rounded"
+                  />
+                </div>
+              </>
             )}
           </div>
         ))}
@@ -411,7 +417,7 @@ const ImageUploadAndCamera: React.FC = () => {
           className={`mt-4 text-lg px-4 py-2 text-white rounded ${isUploading ? "bg-gray-500" : "bg-green-500"
             }`}
         >
-          {isUploading ? "Uploading..." : "Upload Images"}
+          {isUploading ? "Uploading..." : contextInput ? "Upload Again" : "Upload Image"}
         </button>
       )}
     </div>
