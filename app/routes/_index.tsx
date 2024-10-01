@@ -51,7 +51,7 @@ export default function Index() {
 
         <section className="my-12 text-center">
           <h2 className="text-3xl font-semibold mb-6">Ready to Start Your Adventure?</h2>
-          <button className="bg-yellow-400 hover:bg-yellow-500 text-blue-900 font-bold py-3 px-6 rounded-full text-xl transition duration-300 transform hover:scale-105">
+          <button className="bg-yellow-400 hover:bg-yellow-500 text-blue-900 font-bold py-3 px-6 text-xl transition duration-300 transform hover:scale-105">
             <ImageUploadAndCamera />
           </button>
         </section>

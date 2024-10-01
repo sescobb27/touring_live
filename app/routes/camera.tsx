@@ -70,30 +70,29 @@ const ImageUploadAndCamera: React.FC = () => {
 		});
 	};
 
-	const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
-		if (event.target.files) {
-			const files = Array.from(event.target.files);
-			const resizedFilesPromises = files.map((file) =>
-				resizeImage(file, 1024, 1024)
-			);
-			try {
-				setImageError(null); // Reset previous error
-				const resizedFiles = await Promise.all(resizedFilesPromises);
-				addImagesToState(resizedFiles);
-			} catch (error) {
-				console.error("Error resizing images:", error);
-				setImageError("Failed to process images. Please try again.");
-			}
-		}
-	};
+  const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files) {
+      const files = Array.from(event.target.files);
+      const resizedFilesPromises = files.map(file => resizeImage(file, 1024, 1024));
+      try {
+        setImageError(null); // Reset previous error
+        setUploadError(null); // Reset previous error
+        const resizedFiles = await Promise.all(resizedFilesPromises);
+        addImagesToState(resizedFiles);
+      } catch (error) {
+        console.error('Error resizing images:', error);
+        setImageError('Failed to process images. Please try again.');
+      }
+    }
+  };
 
 	const addImagesToState = (files: File[]) => {
-		const newImages: ImageFile[] = files.map((file) => ({
-			file,
-			preview: URL.createObjectURL(file),
-		}));
-		setImages((prevImages) => [...prevImages, ...newImages]);
-	};
+    const newImages: ImageFile[] = files.map(file => ({
+      file,
+      preview: URL.createObjectURL(file)
+    }));
+    setImages(_prevImages => [...newImages]);
+  };
 
 	const removeImage = (index: number) => {
 		setImages((prevImages) => prevImages.filter((_, i) => i !== index));
@@ -182,11 +181,15 @@ const ImageUploadAndCamera: React.FC = () => {
 				body: formData,
 			});
 
-			if (!response.ok) {
-				throw new Error(`Server error: ${response.statusText}`);
-			}
-
-			const data = await response.json();
+      if (!response.ok) {
+        if (response.status == 404) {
+          setUploadError('Unknown place, monument, object, or art. Please try again.');
+          return;
+        }
+        throw new Error(`Server error: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
 
 			const updatedImages = images.map((image) => {
 				return { ...image, src: data.src, description: data.description };
