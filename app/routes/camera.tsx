@@ -69,6 +69,7 @@ const ImageUploadAndCamera: React.FC = () => {
       const resizedFilesPromises = files.map(file => resizeImage(file, 1024, 1024));
       try {
         setImageError(null); // Reset previous error
+        setUploadError(null); // Reset previous error
         const resizedFiles = await Promise.all(resizedFilesPromises);
         addImagesToState(resizedFiles);
       } catch (error) {
@@ -83,7 +84,7 @@ const ImageUploadAndCamera: React.FC = () => {
       file,
       preview: URL.createObjectURL(file)
     }));
-    setImages(prevImages => [...prevImages, ...newImages]);
+    setImages(_prevImages => [...newImages]);
   };
 
   const removeImage = (index: number) => {
@@ -168,6 +169,10 @@ const ImageUploadAndCamera: React.FC = () => {
       });
 
       if (!response.ok) {
+        if (response.status == 404) {
+          setUploadError('Unknown place, monument, object, or art. Please try again.');
+          return;
+        }
         throw new Error(`Server error: ${response.statusText}`);
       }
 
