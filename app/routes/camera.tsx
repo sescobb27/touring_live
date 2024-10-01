@@ -7,12 +7,13 @@ interface ImageFile {
   file: File;
   preview: string;
   description?: string;
+  name?: string;
   src?: string | null;
   context?: string | null;
 }
 
-// const host = 'http://localhost:4000'
-const host = "https://touring-live-api.fly.dev";
+const host = 'http://localhost:4000'
+// const host = "https://touring-live-api.fly.dev";
 
 const ImageUploadAndCamera: React.FC = () => {
   const [images, setImages] = useState<ImageFile[]>([]);
@@ -24,7 +25,12 @@ const ImageUploadAndCamera: React.FC = () => {
   const [activeContextIndex, setActiveContextIndex] = useState<number | null>(
     null
   );
+  const [isUseful, setIsUseful] = useState<boolean | null>(
+    null
+  );
   const [contextInput, setContextInput] = useState<string>("");
+  const [feedbackInput, setFeedbackInput] = useState<string>("");
+  const [feedbackError, setFeedbackError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -89,7 +95,8 @@ const ImageUploadAndCamera: React.FC = () => {
   const addImagesToState = (files: File[]) => {
     const newImages: ImageFile[] = files.map(file => ({
       file,
-      preview: URL.createObjectURL(file)
+      preview: URL.createObjectURL(file),
+      src: "fsdfas", description: "fasddfs", name: "pepe"
     }));
     setImages(_prevImages => [...newImages]);
   };
@@ -161,8 +168,39 @@ const ImageUploadAndCamera: React.FC = () => {
     setContextInput(e.target.value);
   };
 
+  const handleUsefulButtonClick = (index: number) => {
+    setIsUseful(true);
+  };
+
+  const handleFeedbackInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setFeedbackInput(e.target.value);
+  };
+
+  const handleFeedbackSubmit = async (event: React.FormEvent) => {
+    if (images.length == 0 || feedbackInput?.trim() == "") {
+      return;
+    }
+    setFeedbackError(null)
+    const payload = { elementName: images[0].name, feedback: feedbackInput }
+
+    try {
+      const response = await fetch(`${host}/api/feedback`, {
+        headers: { accept: "application/json" },
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`);
+      }
+    } catch (error) {
+      console.error("Error sending feedback:", error);
+      setFeedbackError("Error sending feedback, try again please.")
+    }
+  };
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    setIsUseful(null);
     const formData = new FormData();
     images.forEach((image) => {
       formData.append(`images[]`, image.file);
@@ -190,13 +228,13 @@ const ImageUploadAndCamera: React.FC = () => {
           setUploadError('Sorry you can only upload 3 images per hour');
           return;
         }
-        throw new Error(`Server error: ${response.statusText}`);
+        throw new Error(`Server error: ${response.status}`);
       }
 
       const data = await response.json();
 
       const updatedImages = images.map((image) => {
-        return { ...image, src: data.src, description: data.description };
+        return { ...image, src: data.src, description: data.description, name: data.name };
       });
 
       setImages(updatedImages); // Update state with descriptions
@@ -313,12 +351,40 @@ const ImageUploadAndCamera: React.FC = () => {
               </div>
             )}
             {image.src && (
-              <button
-                onClick={() => handleContextButtonClick(index)}
-                className="ml-2 text-sm flex justify-end px-1 py-4 text-blue-500 rounded underline"
-              >
-                Did we missed the place?
-              </button>
+              <>
+                <button
+                  onClick={() => handleContextButtonClick(index)}
+                  className="ml-2 text-sm flex justify-end px-1 py-4 text-blue-500 rounded underline"
+                >
+                  Not the place you want?
+                </button>
+
+                <button
+                  onClick={() => handleUsefulButtonClick(index)}
+                  className="ml-2 text-sm flex justify-end px-1 py-4 text-blue-500 rounded underline"
+                >
+                  Was this useful? let us know!
+                </button>
+              </>
+            )}
+
+            {isUseful && (
+              <div className="mt-2 flex">
+                <input
+                  type="textarea"
+                  value={feedbackInput}
+                  onChange={handleFeedbackInputChange}
+                  placeholder="How would you rate our app?, was it helpful?"
+                  className="flex-grow px-2 py-1 border text-gray-700 bg-gray-100 rounded"
+                />
+                <button
+                  onClick={handleFeedbackSubmit}
+                  className="mt-4 text-lg px-4 py-2 text-white rounded bg-green-500"
+                >
+                  Submit
+                </button>
+                {feedbackError && <p className="text-red-500 mt-4">{feedbackError}</p>}
+              </div>
             )}
 
             {activeContextIndex === index && (
