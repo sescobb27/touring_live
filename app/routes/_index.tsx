@@ -4,8 +4,8 @@ import { Camera, Volume2, Globe, History } from 'lucide-react';
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "New Remix App" },
-    { name: "description", content: "Welcome to Remix!" },
+    { title: "Your personal AI tour guide, anywhere in the world!" },
+    { name: "description", content: "Welcome to Touring Live AI!" },
   ];
 };
 
