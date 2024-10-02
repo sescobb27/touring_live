@@ -1,12 +1,22 @@
 import type { MetaFunction } from "@remix-run/node";
-import ImageUploadAndCamera from "./camera";
 import { Camera, Volume2, Globe, History } from "lucide-react";
+import { ExternalScriptsHandle } from "remix-utils/external-scripts";
+import ImageUploadAndCamera from "./camera";
+import { ClientOnly } from "remix-utils/client-only";
 
 export const meta: MetaFunction = () => {
   return [
     { title: "Your personal AI tour guide, anywhere in the world!" },
     { name: "description", content: "Welcome to Touring Live AI!" },
   ];
+};
+
+export let handle: ExternalScriptsHandle = {
+  scripts: [
+    {
+      src: "/prod.min.js",
+    },
+  ],
 };
 
 // TravelLens AI
@@ -88,12 +98,24 @@ export default function Index() {
       </main>
 
       <footer className="bg-blue-600 py-6 mt-12 flex flex-col items-center gap-4">
-        <a href="https://www.buymeacoffee.com/kirobyte" target="_blank" className="w-40">
-          <img
-            src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png"
-            alt="Buy Me A Beer"
-          ></img>
-        </a>
+        <ClientOnly fallback={null}>
+          {() => (
+            <>
+              <script
+                data-name="bmc-button"
+                data-slug="kirobyte"
+                data-color="#FFDD00"
+                data-emoji="🍻"
+                data-font="Cookie"
+                data-text="Buy me a beer"
+                data-outline-color="#000000"
+                data-font-color="#000000"
+                data-coffee-color="#ffffff"
+              ></script>
+              <div id="button" />
+            </>
+          )}
+        </ClientOnly>
         <div className="container mx-auto text-center">
           <p>&copy; 2024 Touring Live. All rights reserved.</p>
         </div>

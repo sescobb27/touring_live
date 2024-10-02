@@ -6,6 +6,7 @@ import {
   ScrollRestoration,
 } from "@remix-run/react";
 import type { LinksFunction } from "@remix-run/node";
+import { ExternalScripts } from "remix-utils/external-scripts";
 import '@smastrom/react-rating/style.css'
 
 import "./tailwind.css";
@@ -36,7 +37,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         {children}
         <ScrollRestoration />
         <Scripts />
-        <script type="text/javascript" src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js" data-name="bmc-button" data-slug="kirobyte" data-color="#FFDD00" data-emoji="🍻" data-font="Cookie" data-text="Buy me a beer" data-outline-color="#000000" data-font-color="#000000" data-coffee-color="#ffffff" ></script>
+        <ExternalScripts />
       </body>
     </html>
   );
