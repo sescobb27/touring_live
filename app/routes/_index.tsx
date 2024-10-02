@@ -61,10 +61,6 @@ export default function Index() {
         <div className="container mx-auto text-center">
           <p>&copy; 2024 Touring Live. All rights reserved.</p>
         </div>
-        <a href="https://www.buymeacoffee.com/kirobyte" target="_blank">
-          <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Beer" >
-          </img>
-        </a>
       </footer>
     </div>
   );
