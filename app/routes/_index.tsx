@@ -14,7 +14,7 @@ export const meta: MetaFunction = () => {
 export let handle: ExternalScriptsHandle = {
   scripts: [
     {
-      src: "/app/components/prod.min.js",
+      src: "/prod.min.js",
     },
   ],
 };
